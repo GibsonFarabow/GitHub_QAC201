@@ -70,7 +70,7 @@ myData$Cong_Rep_U[myData$w1_i2 == 1] <- 5
 # Below show there is no significant difference in score - so it should be ok to combine them
 # or in other words, personal scores and American scores have a high correlation of similarity
 ggplot(myData, aes(x=Cong_Rep_U, y=Cong_Rep_Amer)) + geom_jitter() + stat_smooth(method='lm')
-x <- cor.test(myData$Cong_Rep_Amer, myData$Cong_Rep_U)
+Cong_Test <- cor.test(myData$Cong_Rep_Amer, myData$Cong_Rep_U)
 
 myData$Cong_Rep_Score <- myData$Cong_Rep_U + myData$Cong_Rep_Amer
 myData$Cong_Rep_Score[myData$Cong_Rep_Score== -2] <- NA
