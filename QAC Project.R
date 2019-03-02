@@ -3,12 +3,12 @@
 
 library(ggplot2)
 library(descr)
+library(fifer)
 
-setwd("/Users/gibsonfarabow/Desktop/QAC201/") # In my desktop
-# read.csv("/Users/gibsonfarabow/Desktop/QAC201/OutlookOnLifeData/ool_pds.csv")  # Same as OOL_PDS
+setwd("/Users/gibsonfarabow/Desktop/QAC201/") 
+
 #load("/Users/gibsonfarabow/Desktop/QAC201/OutlookOnLifeData/OOL_PDSwoLabels.RData")
 #OOL_Labels <- OOL_PDSwoLabels
-
 load("/Users/gibsonfarabow/Desktop/QAC201/OutlookOnLifeData/OOL_PDS.RData")
 Data <- OOL_PDS
 
