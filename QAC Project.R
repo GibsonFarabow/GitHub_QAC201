@@ -5,11 +5,11 @@ library(ggplot2)
 library(descr)
 library(fifer)
 
-setwd("/Users/gibsonfarabow/Desktop/QAC201/") 
+setwd("/Users/gibsonfarabow/Desktop/GitHub_QAC201") 
 
-#load("/Users/gibsonfarabow/Desktop/QAC201/OutlookOnLifeData/OOL_PDSwoLabels.RData")
+#load("/Users/gibsonfarabow/Desktop/GitHub_QAC201/QAC201/OutlookOnLifeData/OOL_PDSwoLabels.RData")
 #OOL_Labels <- OOL_PDSwoLabels
-load("/Users/gibsonfarabow/Desktop/QAC201/OutlookOnLifeData/OOL_PDS.RData")
+load("/Users/gibsonfarabow/Desktop/GitHub_QAC201/QAC201/OutlookOnLifeData/OOL_PDS.RData")
 Data <- OOL_PDS
 
 # Subsetting to create a smaller dataset which contains all variables of interest
@@ -48,55 +48,53 @@ Thermometer_D <- c("w1_d11", "w1_d12", "w1_d13", "w1_d14", "w1_d15", "w1_d16", "
 
 # Project Component E - Data Management
 ##################################################################################################
+myData$w1_i2[myData$w1_i2 == -1] <- NA
+myData$w1_i1[myData$w1_i1 == -1] <- NA
 
 myData$Cong_Rep_U <- myData$w1_i2
-myData$Cong_Rep_U[myData$w1_i2 == -1] <- NA
+
 myData$Cong_Rep_Amer <- myData$w1_i1
-myData$Cong_Rep_Amer[myData$w1_i1 == -1] <- NA
 
 #Recode - 5 means Congress works "extremely well"
-myData$Cong_Rep_Amer[myData$w1_i1 == 5] <- 1
-myData$Cong_Rep_Amer[myData$w1_i1 == 4] <- 2
-myData$Cong_Rep_Amer[myData$w1_i1 == 3] <- 3
-myData$Cong_Rep_Amer[myData$w1_i1 == 2] <- 4
-myData$Cong_Rep_Amer[myData$w1_i1 == 1] <- 5
+myData$Cong_Rep_Amer <- 6 - myData$w1_i1
 
-myData$Cong_Rep_U[myData$w1_i2 == 5] <- 1
-myData$Cong_Rep_U[myData$w1_i2 == 4] <- 2
-myData$Cong_Rep_U[myData$w1_i2 == 3] <- 3
-myData$Cong_Rep_U[myData$w1_i2 == 2] <- 4
-myData$Cong_Rep_U[myData$w1_i2 == 1] <- 5
+myData$Cong_Rep_U <- 6 - myData$w1_i2
 
-# Below show there is no significant difference in score - so it should be ok to combine them
-# or in other words, personal scores and American scores have a high correlation of similarity
+# Below shows there is no significant difference in score,
+# so it should be ok to combine them to make a holistic score. In other words,
+# personal representation American collective representation scores are not typically different
 ggplot(myData, aes(x=Cong_Rep_U, y=Cong_Rep_Amer)) + geom_jitter() + stat_smooth(method='lm')
 Cong_Test <- cor.test(myData$Cong_Rep_Amer, myData$Cong_Rep_U)
+# p value < .001 and cor coefficient = .84
+
+
 
 myData$Cong_Rep_Score <- myData$Cong_Rep_U + myData$Cong_Rep_Amer
 myData$Cong_Rep_Score[myData$Cong_Rep_Score== -2] <- NA
 
-
+myData$w1_a1[myData$w1_a1 == -1] <- NA
 myData$Polit_Int <- myData$w1_a1
-myData$Polit_Int[myData$w1_a1 == -1] <- NA 
+
+
 
 # Recode - 5 means "extremely interested" in politics
-myData$Polit_Int[myData$w1_a1 == 5] <- 1
-myData$Polit_Int[myData$w1_a1 == 4] <- 2
-myData$Polit_Int[myData$w1_a1 == 3] <- 3
-myData$Polit_Int[myData$w1_a1 == 2] <- 4
-myData$Polit_Int[myData$w1_a1 == 1] <- 5
-myData$Polit_Int <- as.factor(myData$Polit_Int)
+myData$Polit_Int_Num <- 6 - myData$Polit_Int
 
+myData$Polit_Int[myData$w1_a1 == 5] <- "Extreme"
+myData$Polit_Int[myData$w1_a1 == 4] <- "Very"
+myData$Polit_Int[myData$w1_a1 == 3] <- "Moderate"
+myData$Polit_Int[myData$w1_a1 == 2] <- "Slight"
+myData$Polit_Int[myData$w1_a1 == 1] <- "None"
+myData$Polit_Int <- as.factor(myData$Polit_Int)
+levels(myData$Polit_Int) <- c("None", "Slight", "Moderate", "Very", "Extreme")
+
+
+myData$w1_m3[myData$w1_m3 == -1] <- NA
 myData$sub_Rel <- myData$w1_m3
-myData$sub_Rel[myData$w1_m3 == -1] <- NA
-myData$sub_Rel[myData$w1_m3 == 4] <- 1
-myData$sub_Rel[myData$w1_m3 == 3] <- 2
-myData$sub_Rel[myData$w1_m3 == 2] <- 3
-myData$sub_Rel[myData$w1_m3 == 1] <- 4
+myData$sub_Rel <- 5 - myData$w1_m3
 
 myData$religion <- myData$w1_m1
 myData$religion <- as.factor(myData$religion)
-myData$religion[myData$w1_m1 == -1] <- NA
 levels(myData$religion) <- c("Baptist", "Protestant", "Catholic", "Mormon", "Jewish", "Muslim", "Hindu",
                              "Buddhist", "Pentecostal", "Eastern Orthodox", "Other Christian",
                              "Other Christian", "Other", "None")
@@ -142,6 +140,12 @@ barplot(table(myData$Cong_Rep_Score), main="Congressional Representation Score",
 barplot(table(myData$sub_Rel), main="Politics and Church", ylab="Frequency",
         xlab="Value - 1: strong feeling of seperation, 4:strong feeling of compatability")
 barplot(table(myData$religion.a), main="Religion", ylab="Frequency")
+
+ggplot(myData) +
+  geom_bar(aes(x=pol_party)) + 
+  geom_label(stat="count", aes(x=pol_party, label=..count..))
+
+
 # Political interest is explanatory variable; Representation is response variable
 ggplot(data=subset(myData, !is.na(myData$Polit_Int))) + stat_summary(aes(x=Polit_Int, y=Cong_Rep_Score),
                                    fun.y=mean, geom="bar")
@@ -154,17 +158,48 @@ ggplot(data=subset(myData, !is.na(myData$Polit_Int))) + stat_summary(aes(x=Polit
 # Shows clear positive correlation between political interest and belief that
 # churches should be involved in politics  
 
-ggplot(data=subset(myData, !is.na(myData$Polit_Int))) +
-  geom_bar(aes(x=Polit_Int, y=sub_Rel, fill = religion.a), stat = "summary", fun.y = "mean")
+ggplot(data=subset(myData, !is.na(myData$Polit_Int)),
+       aes(x=Polit_Int, y=sub_Rel, fill = religion.a)) +
+  geom_bar(stat = "summary", fun.y = "mean") #+ geom_text(label=sub_Rel)
 # use position "dodge" to make bars beside each other  
 
 # same data different graph below                                   
 ggplot(data=subset(myData, !is.na(myData$Polit_Int))) +
   geom_boxplot(aes(x=Polit_Int, y=sub_Rel)) +
-  facet_grid(~religion.a)
+  facet_grid(. ~religion.a)
 # Propotions of interest to pro-religion and church look roughly the same across religions
 
 ggplot(data=subset(myData, !is.na(Polit_Christ))) + geom_bar(aes(x=Polit_Christ, y=sub_Rel), fun.y="mean", stat="summary")
-# shows strong linear relationship between political mindedness and positive feelings towards congress
+# shows strong linear relationship between Christian political mindedness and positive feelings towards congress
+
+###### random stuff (& numbers right now)
+religions <- c(rep(c("Baptist (any)", "Catholic", "None", "Other Christian", "Other Religion", "Protestant"), times=3))
+
+df <- c(rep(c(1,2,3,4,5,6), times=3)) # each repeates each one that many times
+dfa <- c(rep(c(10,15,20,10,15,30), times= 3))
+dff <- data.frame(df, dfa, religions)
+
+ggplot(dff) + stat_summary(aes(x=df, y=dfa, fill= religions), position="stack", geom="bar")
+# do this to get small data frame for using labels for a graph
+
+# Statistical Testing
+########################################################################################
+
+Cong_Pol.aov <- aov(myData$Cong_Rep_Score ~ myData$Polit_Int, data=myData)
+summary(Cong_Pol.aov)
+TukeyHSD(Cong_Pol.aov)
+# Conducting an ANOVA test indicates that there is a significant association
+# between political interest and feelings. Running a post-hoc test indicates
+# there is only a significant correlation between political interest and feelings toward Congress
+# when 1: comparing no political interest ("None") and "Moderate," 
+# 2: comparing "Slight" to "None," and 
+# 3: comparing "Very" to "None."
+# These results show that there is only a significant association between Political Interest
+# and faith in Congress when measuring political interest in comparison to no political interest,
+# however even here the relationship is not linear. (I will conduct a regular correlation later, because
+# I think it makes more sense to make political interest a numerical value instead of a factor.)    
 
 
+Pol_Sub.aov <- aov(myData$sub_Rel ~ myData$Polit_Int, data=myData)
+summary(Pol_Sub.aov)
+TukeyHSD(Pol_Sub.aov)
