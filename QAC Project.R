@@ -171,15 +171,6 @@ ggplot(data=subset(myData, !is.na(myData$Polit_Int))) +
   facet_grid(. ~religion.a)
 # Propotions of interest to pro-religion and church look roughly the same across religions
 
-###### random stuff (& numbers right now)
-religions <- c(rep(c("Baptist (any)", "Catholic", "None", "Other Christian", "Other Religion", "Protestant"), times=3))
-
-df <- c(rep(c(1,2,3,4,5,6), times=3)) # each repeates each one that many times
-dfa <- c(rep(c(10,15,20,10,15,30), times= 3))
-dff <- data.frame(df, dfa, religions)
-
-ggplot(dff) + stat_summary(aes(x=df, y=dfa, fill= religions), position="stack", geom="bar")
-# do this to get small data frame for using labels for a graph
 
 # (Original) Main Varaibles Statistical Testing
 ########################################################################################
