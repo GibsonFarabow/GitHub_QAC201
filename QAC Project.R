@@ -249,7 +249,7 @@ by(myData,
 # found for peole with "None" for religion
 
 Denom <- myData[c("Polit_Int_Num", "sub_Rel", "religion.a")]
-ggplot(Denom, aes(x=religion.a, y=sub_Rel)) + stat_summary(fun.y=mean, geom="bar")
+ggplot(Denom, aes(x=religion.a, y=sub_Rel, fill=religion.a)) + stat_summary(fun.y=mean, geom="bar")
 
 #2 by class for pol_int to cong_rep
 by(myData,
@@ -287,14 +287,23 @@ Sex_Pol$w1_p4[Sex_Pol$w1_p4 == "gay" | Sex_Pol$w1_p4 == "lesbian"] <- "homosexua
 ggplot(data=subset(Sex_Pol,!is.na(w1_p4)), aes(x=Polit_Int_Num, y=Cong_Rep_Amer, fill=w1_p4)) + 
   geom_bar(stat="summary", fun.y=mean, position="dodge") 
 
-
+colors <- c("red", "blue", "green", "yellow", "purple", "black")
 Cath_Rel <- myData[c("Polit_Int_Num", "sub_Rel", "religion.a")]
 
 ggplot(data=subset(myData,!is.na(religion.a)), aes(x=Polit_Int_Num, y=sub_Rel, fill=religion.a)) + 
-  geom_jitter(stat="summary", fun.y=mean) + stat_smooth(method="lm")
+  geom_jitter(stat="summary", fun.y=mean) + stat_smooth(method="auto", size=0)
 
-this <- subset(Cath_Rel, Cath_Rel$religion.a=="None") # Switch these around
+ggplot(data=subset(myData,!is.na(religion.a)), aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a, fill=religion.a)) +
+         geom_jitter(stat="summary", fun.y=mean, shape=NA) + stat_smooth( method="auto", se=FALSE)
+  
+this <- subset(Cath_Rel, Cath_Rel$religion.a=="Catholic") # Can switch these around
 
-ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, fill=religion.a)) + 
-  geom_jitter(stat="summary", fun.y=mean) + 
-  stat_smooth(method="lm")
+ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) + 
+  geom_jitter(stat="summary", fun.y=mean, shape=NA) + 
+  stat_smooth(method="auto", fill="light blue", color= "green")
+
+this <- subset(Cath_Rel, Cath_Rel$religion.a=="Catholic" | religion.a=="Baptist (any)")
+
+ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) + 
+  geom_jitter(stat="summary", fun.y=mean, shape=NA) + 
+  stat_smooth(method="auto")
