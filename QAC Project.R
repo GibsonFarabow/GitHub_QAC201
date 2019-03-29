@@ -2,7 +2,7 @@
 # QAC 201
 
 library(ggplot2)
-library(descr) 
+library(descr)
 library(fifer)
 
 setwd("/Users/gibsonfarabow/Desktop/GitHub_QAC201")
@@ -17,14 +17,14 @@ Data <- OOL_PDS
 myData <- Data[c("ppagect4","ppeducat","ppethm","ppgender","ppincimp","ppmsacat","pphhsize","ppreg4",
                  "ppreg9","ppstaten","ppwork",
                  "w1_a1", "w1_a10", "w1_a11", "w1_a12a", "w1_b1", "w1_b2", "w1_b4", "w1_c1",
-                 "w1_c2", "w1_e1", "w1_f3", "w1_g2", "w1_g3a", "w1_i1", "w1_i2", "w1_j3a_a",
+                 "w1_c2", "w1_f3", "w1_g2", "w1_g3a", "w1_i1", "w1_i2", "w1_j3a_a",
                  "w1_j3a_b","w1_j3a_c", "w1_k1_a", "w1_k1_b", "w1_k1_c", "w1_k1_d", "w1_l2_1",
                  "w1_l2_2", "w1_l2_3", "w1_m1", "w1_m3","w1_m7", "w1_o1","w1_p2",
                  "w1_p4", "w1_p5", "w1_p13a", "w1_p14", "w1_p15", "w1_p20",
 
                  "w1_d11", "w1_d12", "w1_d13", "w1_d14", "w1_d15", "w1_d16", "w1_d17", "w1_d18",
                  "w1_d19", "w1_d20",
-                 "w2_qb1c", "w2_qb1d", "w2_qb2a", "w2_qf10d", "w2_qi3", "w2_qi4_c", "w2_qk3",
+                 "w2_qb1c", "w2_qb1d", "w2_qb2a", "w2_qe1", "w2_qf10d", "w2_qi3", "w2_qi4_c", "w2_qk3",
                  "w2_qm12", "w2_qn3", "w2_qn4")]
 
 # copy for managing NAs
@@ -103,8 +103,7 @@ levels(myData$Polit_Int) <- c("None", "Slight", "Moderate", "Very", "Extreme")
 
 
 myData$w1_m3[myData$w1_m3 == -1] <- NA
-myData$sub_Rel <- myData$w1_m3
-myData$sub_Rel <- 5 - myData$w1_m3
+myData$sub_Rel <- 5 - myData$w1_m3 # where 4 is strongly agree church should be involved in politics 
 
 myData$religion <- myData$w1_m1
 myData$religion <- as.factor(myData$religion)
@@ -130,6 +129,14 @@ myData$pol_party[myData$w1_c1 == 2] <- "Democrat"
 myData$pol_party[myData$w1_c1 == 3] <- "Independent"
 myData$pol_party[myData$w1_c1 == 4 | myData$w1_c1 == -1] <- NA
 myData$pol_party <- as.factor(myData$pol_party)
+
+# Moderator variable
+myData$w1_p4[myData$w1_p4== 1] <-"heterosexual"
+myData$w1_p4[myData$w1_p4== 2] <-"gay"
+myData$w1_p4[myData$w1_p4== 3] <-"lesbian"
+myData$w1_p4[myData$w1_p4== 4] <- "bisexual"
+myData$w1_p4[myData$w1_p4== 5] <- NA
+myData$w1_p4[myData$w1_p4== -1] <- NA
 
 #Project Component F & G
 #################################################################################################
@@ -190,15 +197,15 @@ TukeyHSD(Cong_Pol.aov)
 # I think it makes more sense to make political interest a numerical value instead of a factor.)
 
 #Visualize the relationship for correlation
-ggplot(myData, aes(x=Polit_Int_Num, y=Cong_Rep_Score)) + geom_jitter() + stat_smooth(method="lm")
-cor.test(myData$Polit_Int_Num, myData$Cong_Rep_Score)
+ggplot(myData, aes(x=Polit_Int_Num, y=Cong_Rep_Amer)) + geom_jitter() + stat_smooth(method="lm")
+cor.test(myData$Polit_Int_Num, myData$Cong_Rep_Amer)
 # Shows there is not a significant correlation between Political Interest and Congressional score
-# r = -.086, p < .001
+# r = -.100, p < .001
 
 
 cor.test(myData$Polit_Int_Num, myData$sub_Rel)
 # Shows there is a weak positive correlation between political interest and
-# belief in the seperation of church and politics; r = .124, p < .001
+# the belief that church should be involved in politics; r = .124, p < .001
 Pol_Sub.aov <- aov(myData$sub_Rel ~ myData$Polit_Int, data=myData)
 summary(Pol_Sub.aov)
 TukeyHSD(Pol_Sub.aov)
@@ -223,18 +230,71 @@ TukeyHSD(Party_subRel.aov)
 # Significant difference between everyone but Republican vs Independent; p < .005
 # Considering last test, suggests Independents and Republicans are more aligned than Democrats on this issue
 
-#####################################################################################
-myData2$Cong_Rep_Score <- myData$Cong_Rep_Score
-myData2$w1_a1[myData2$w1_a1 == -1] <- NA
-myData2$w1_c1[myData$w1_c1 == -1] <- NA
-myData2$w1_c1[myData$w1_c1 == 4] <- NA
-party_graph <- na.omit(myData2[,c("w1_a1","w1_c1", "Cong_Rep_Score")])
-names(party_graph)[1:2] <- c("Polit_Int", "Pol_Party")
-party_graph$Pol_Party[party_graph$Pol_Party == 1] <- "Republican"
-party_graph$Pol_Party[party_graph$Pol_Party == 2] <- "Democrat"
-party_graph$Pol_Party[party_graph$Pol_Party == 3] <- "Independent"
 
-ggplot(party_graph, aes(x=Polit_Int, y=Cong_Rep_Score, fill=Pol_Party)) +
-  stat_summary(position="dodge", geom="bar", fun.y="mean")
-ggplot(party_graph) + stat_summary(aes(x=Pol_Party, y=Polit_Int), geom="bar")
-# probably no significant different in interest except maybe for Independents
+# Multivariate testing for moderation
+#####################################################################################
+# (large differences between Cong_Rep_Amer and Cong_Rep_U for correlations.) 
+
+# 1 by religion for religious association
+by(myData,
+   myData$religion.a,
+   function(x) cor.test(x$sub_Rel, x$Polit_Int_Num))
+
+# Shows there is a significant relationship between political interest and sub_rel for Baptists
+# and 'Other Christians' at p <.005 and for 'Other Religions' and 'Protestants' at p <.05. "Other Christians"
+# had the strongest negative correlation at r= -.257 (still weak), and the others had weaker
+# correlations between r= -.1 and -.2.
+# The results show p >.8 for "Catholics," strongly suggesting there is no relationship between political
+# interest and belief in the seperation of church and state. There was also no significant relationship
+# found for peole with "None" for religion
+
+Denom <- myData[c("Polit_Int_Num", "sub_Rel", "religion.a")]
+ggplot(Denom, aes(x=religion.a, y=sub_Rel)) + stat_summary(fun.y=mean, geom="bar")
+
+#2 by class for pol_int to cong_rep
+by(myData,
+   myData$w1_p2,
+   function(x) cor.test(x$Cong_Rep_Amer, x$Polit_Int_Num)) # by class
+
+# Middle class has r= -.186 and p < .0001, strongly suggesting that as political interest goes up,
+# Cong_Score goes down though the relationship is weak. No other groups had statistically significant results
+
+# Sexual orientation makes for stronger correlations:
+by(myData,
+   myData$w1_p4,
+   function(x) cor.test(x$Cong_Rep_Amer, x$Polit_Int_Num)) 
+
+# for people who consider themselves homosexual, the is a significant negative correlation between
+# political interest and congress score. 'Lesbian'- p<.01 and r= -.77; 'Gay' - p<.01 and r= -.48
+# for heterosexuals there seems to be no significant relationship: r= -.09 and p<.001.
+
+
+# try some feeling thermometers for this (but remember explanatory categorical) for anova moderation
+by(myData,
+   myData$religion.a,
+   function(x) list(aov(w1_d20 ~ Polit_Int, data = x), summary(aov(w1_d20 ~ Polit_Int, data = x))))
+
+
+# Moderator graphs
+#####################################################################################
+ggplot(data=subset(myData,!is.na(w1_p4)), aes(x=Polit_Int_Num, y=Cong_Rep_Amer, fill=w1_p4)) + 
+  geom_bar(stat="summary", fun.y=mean, position="dodge") 
+
+Sex_Pol <- myData[c("Cong_Rep_Amer", "Polit_Int_Num", "w1_p4")]
+Sex_Pol$w1_p4[Sex_Pol$w1_p4 == "bisexual"] <-NA
+Sex_Pol$w1_p4[Sex_Pol$w1_p4 == "gay" | Sex_Pol$w1_p4 == "lesbian"] <- "homosexual"
+
+ggplot(data=subset(Sex_Pol,!is.na(w1_p4)), aes(x=Polit_Int_Num, y=Cong_Rep_Amer, fill=w1_p4)) + 
+  geom_bar(stat="summary", fun.y=mean, position="dodge") 
+
+
+Cath_Rel <- myData[c("Polit_Int_Num", "sub_Rel", "religion.a")]
+
+ggplot(data=subset(myData,!is.na(religion.a)), aes(x=Polit_Int_Num, y=sub_Rel, fill=religion.a)) + 
+  geom_jitter(stat="summary", fun.y=mean) + stat_smooth(method="lm")
+
+this <- subset(Cath_Rel, Cath_Rel$religion.a=="None") # Switch these around
+
+ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, fill=religion.a)) + 
+  geom_jitter(stat="summary", fun.y=mean) + 
+  stat_smooth(method="lm")
