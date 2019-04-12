@@ -307,3 +307,30 @@ this <- subset(Cath_Rel, Cath_Rel$religion.a=="Catholic" | religion.a=="Baptist 
 ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) + 
   geom_jitter(stat="summary", fun.y=mean, shape=NA) + 
   stat_smooth(method="auto")
+
+# Project Component J - Multiple Regression 
+##########################################################################################
+
+myData$religion.a <- relevel(myData$religion.a, ref = 3) # recode level to have "None" as
+# default for multiple regression test (comparing None religion to the others)
+levels(myData$religion.a)
+
+my.lm <- lm(myData$sub_Rel ~ myData$Polit_Int_Num + myData$religion.a + 
+              myData$Polit_Int_Num*myData$religion.a, data = myData)
+summary(my.lm)
+
+myData$household_inc <- myData$ppincimp
+freq(myData$household_inc)   # think of as quantitative - check codebook for levels
+
+ggplot(myData) + stat_summary(fun.y= mean, aes(x=religion.a, y=household_inc), geom="bar")
+# See how wealth may confound (it doesn't seem to considering None is much different
+# And protestant is the same) - do test later 
+
+this <- subset(Cath_Rel, Cath_Rel$religion.a=="Catholic" | religion.a=="Protestant")
+
+ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) + 
+  geom_jitter(stat="summary", fun.y=mean, shape=NA) + 
+  stat_smooth(method="auto")
+
+
+
