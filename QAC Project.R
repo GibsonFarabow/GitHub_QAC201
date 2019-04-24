@@ -27,6 +27,22 @@ myData <- Data[c("ppagect4","ppeducat","ppethm","ppgender","ppincimp","ppmsacat"
                  "w2_qb1c", "w2_qb1d", "w2_qb2a", "w2_qe1", "w2_qf10d", "w2_qi3", "w2_qi4_c", "w2_qk3",
                  "w2_qm12", "w2_qn3", "w2_qn4")]
 
+myData$ID <- 1:nrow(myData)
+myData$obsv <- 1
+
+myData <- myData[, c("ID", "obsv", "ppagect4","ppeducat","ppethm","ppgender","ppincimp","ppmsacat","pphhsize","ppreg4",
+                    "ppreg9","ppstaten","ppwork",
+                    "w1_a1", "w1_a10", "w1_a11", "w1_a12a", "w1_b1", "w1_b2", "w1_b4", "w1_c1",
+                    "w1_c2", "w1_f3", "w1_g2", "w1_g3a", "w1_i1", "w1_i2", "w1_j3a_a",
+                    "w1_j3a_b","w1_j3a_c", "w1_k1_a", "w1_k1_b", "w1_k1_c", "w1_k1_d", "w1_l2_1",
+                    "w1_l2_2", "w1_l2_3", "w1_m1", "w1_m3","w1_m7", "w1_o1","w1_p2",
+                    "w1_p4", "w1_p5", "w1_p13a", "w1_p14", "w1_p15", "w1_p20",
+                    
+                    "w1_d11", "w1_d12", "w1_d13", "w1_d14", "w1_d15", "w1_d16", "w1_d17", "w1_d18",
+                    "w1_d19", "w1_d20",
+                    "w2_qb1c", "w2_qb1d", "w2_qb2a", "w2_qe1", "w2_qf10d", "w2_qi3", "w2_qi4_c", "w2_qk3",
+                    "w2_qm12", "w2_qn3", "w2_qn4") ]
+
 # copy for managing NAs
 myData2 <- Data[c("ppagect4","ppeducat","ppethm","ppgender","ppincimp","ppmsacat","pphhsize","ppreg4",
                             "ppreg9","ppstaten","ppwork",
@@ -92,14 +108,19 @@ myData$Polit_Int <- myData$w1_a1
 
 # Recode - 5 means "extremely interested" in politics
 myData$Polit_Int_Num <- 6 - myData$Polit_Int
+myData$Polit_Int <- myData$Polit_Int_Num
 
-myData$Polit_Int[myData$w1_a1 == 5] <- "None"
-myData$Polit_Int[myData$w1_a1 == 4] <- "Slight"
+myData$Polit_Int[myData$w1_a1 == 5] <- "Extreme"
+myData$Polit_Int[myData$w1_a1 == 4] <- "Very"
 myData$Polit_Int[myData$w1_a1 == 3] <- "Moderate"
-myData$Polit_Int[myData$w1_a1 == 2] <- "Very"
-myData$Polit_Int[myData$w1_a1 == 1] <- "Exteme"
+myData$Polit_Int[myData$w1_a1 == 2] <- "Slight"
+myData$Polit_Int[myData$w1_a1 == 1] <- "None"
 myData$Polit_Int <- as.factor(myData$Polit_Int)
-levels(myData$Polit_Int) <- c("None", "Slight", "Moderate", "Very", "Extreme")
+
+# ????
+###
+#reorder(!is.na(myData$Polit_Int), levels(myData$Polit_Int)[c("None", "Slight", "Moderate", "Very", "Extreme")])
+
 
 
 myData$w1_m3[myData$w1_m3 == -1] <- NA
@@ -310,7 +331,7 @@ ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) +
 
 # Project Component J - Multiple Regression 
 ##########################################################################################
-
+levels(myData$religion.a)
 myData$religion.a <- relevel(myData$religion.a, ref = 3) # recode level to have "None" as
 # default for multiple regression test (comparing None religion to the others)
 levels(myData$religion.a)
@@ -318,6 +339,9 @@ levels(myData$religion.a)
 my.lm <- lm(myData$sub_Rel ~ myData$Polit_Int_Num + myData$religion.a + 
               myData$Polit_Int_Num*myData$religion.a, data = myData)
 summary(my.lm)
+
+levels(myData$religion.a) <- c("Catholic", "Protestant", "Baptist (any)", "Other Christian", "Other Religion", "None")
+
 
 myData$household_inc <- myData$ppincimp
 freq(myData$household_inc)   # think of as quantitative - check codebook for levels
@@ -330,7 +354,38 @@ this <- subset(Cath_Rel, Cath_Rel$religion.a=="Catholic" | religion.a=="Protesta
 
 ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) + 
   geom_jitter(stat="summary", fun.y=mean, shape=NA) + 
-  stat_smooth(method="auto")
+  stat_smooth(method="auto") # + facet_grid(. ~ religion.a)
+
+
+# Poster Graphs
+######################################################################################
+
+### How to get rid of legend?
+### How to reorder polit_int factors
+
+
+myData$sub_Rel <- as.factor(myData$sub_Rel) # for fill coloring
+ggplot(data=subset(myData, !is.na(sub_Rel)), aes(x=sub_Rel, y=obsv, fill=sub_Rel)) + geom_col() +
+  labs(x="1: Strong Yes;   4: Strong No", y="Frequency", title="Religion and Politics Should Be Seperate")
+myData$sub_Rel <- as.numeric(myData$sub_Rel) # revert back
+
+levels(myData$Polit_Int)
+
+myData$Polit_Int <- relevel(myData$Polit_Int, ref = 5)
+myData$Polit_Int <- relevel(myData$Polit_Int, ref = 3)
+myData$Polit_Int <- relevel(myData$Polit_Int, ref = 5)
+myData$Polit_Int <- relevel(myData$Polit_Int, ref = 5)
+## check
+ggplot(data=subset(myData, !is.na(Polit_Int)), aes(x=Polit_Int, y=sub_Rel, fill=Polit_Int)) +
+  stat_summary(geom="bar", fun.y=mean) +
+  labs(x="Political Interest", y="Religion & Politics ?", fill="Pol_Int", title="Graph")
+
+
+ggplot(data=subset(myData,!is.na(religion.a)),
+       aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) +
+  geom_jitter(stat="summary", fun.y=mean, shape=NA) +
+  stat_smooth( method="auto", se=FALSE) + facet_grid(. ~ religion.a) +
+  labs(x="Political Interest", y="Religion & Politics ?", color="Religion")
 
 
 
