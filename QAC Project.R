@@ -110,11 +110,11 @@ myData$Polit_Int <- myData$w1_a1
 myData$Polit_Int_Num <- 6 - myData$Polit_Int
 myData$Polit_Int <- myData$Polit_Int_Num
 
-myData$Polit_Int[myData$w1_a1 == 5] <- "Extreme"
-myData$Polit_Int[myData$w1_a1 == 4] <- "Very"
+myData$Polit_Int[myData$w1_a1 == 1] <- "Extreme"
+myData$Polit_Int[myData$w1_a1 == 2] <- "Very"
 myData$Polit_Int[myData$w1_a1 == 3] <- "Moderate"
-myData$Polit_Int[myData$w1_a1 == 2] <- "Slight"
-myData$Polit_Int[myData$w1_a1 == 1] <- "None"
+myData$Polit_Int[myData$w1_a1 == 4] <- "Slight"
+myData$Polit_Int[myData$w1_a1 == 5] <- "None"
 myData$Polit_Int <- as.factor(myData$Polit_Int)
 
 # ????
@@ -332,7 +332,7 @@ ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) +
 # Project Component J - Multiple Regression 
 ##########################################################################################
 levels(myData$religion.a)
-myData$religion.a <- relevel(myData$religion.a, ref = 3) # recode level to have "None" as
+myData$religion.a <- relevel(myData$religion.a, ref = 2) # recode level to have "None" as
 # default for multiple regression test (comparing None religion to the others)
 levels(myData$religion.a)
 
@@ -360,13 +360,10 @@ ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) +
 # Poster Graphs
 ######################################################################################
 
-### How to get rid of legend?
-### How to reorder polit_int factors
-
-
 myData$sub_Rel <- as.factor(myData$sub_Rel) # for fill coloring
 ggplot(data=subset(myData, !is.na(sub_Rel)), aes(x=sub_Rel, y=obsv, fill=sub_Rel)) + geom_col() +
-  labs(x="1: Strong Yes;   4: Strong No", y="Frequency", title="Religion and Politics Should Be Seperate")
+  labs(x="1: Strong Yes;  4: Strong No", y="Frequency", 
+       title="Figure 1: Should Religion and Politics Be Seperate?")
 myData$sub_Rel <- as.numeric(myData$sub_Rel) # revert back
 
 levels(myData$Polit_Int)
@@ -375,17 +372,15 @@ myData$Polit_Int <- relevel(myData$Polit_Int, ref = 5)
 myData$Polit_Int <- relevel(myData$Polit_Int, ref = 3)
 myData$Polit_Int <- relevel(myData$Polit_Int, ref = 5)
 myData$Polit_Int <- relevel(myData$Polit_Int, ref = 5)
-## check
+
 ggplot(data=subset(myData, !is.na(Polit_Int)), aes(x=Polit_Int, y=sub_Rel, fill=Polit_Int)) +
   stat_summary(geom="bar", fun.y=mean) +
-  labs(x="Political Interest", y="Religion & Politics ?", fill="Pol_Int", title="Graph")
-
+  labs(x="Political Interest", y="Church & Politics (Figure 1)", fill="Pol_Int",
+       title="Figure 2: The association between political interest and feelings of whether 'Church & Politics' should be seperate")
 
 ggplot(data=subset(myData,!is.na(religion.a)),
        aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) +
   geom_jitter(stat="summary", fun.y=mean, shape=NA) +
   stat_smooth( method="auto", se=FALSE) + facet_grid(. ~ religion.a) +
-  labs(x="Political Interest", y="Religion & Politics ?", color="Religion")
-
-
-
+  labs(x="Political Interest", y="Church & Politics (Figure 1)", color="Religion",
+       title="Figure 3: Adding Religious Identity")
