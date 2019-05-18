@@ -206,7 +206,7 @@ ggplot(data=subset(myData, !is.na(myData$Polit_Int))) +
 Cong_Pol.aov <- aov(myData$Cong_Rep_Score ~ myData$Polit_Int, data=myData)
 summary(Cong_Pol.aov)
 TukeyHSD(Cong_Pol.aov)
-# Conducting an ANOVA test indicates that there is a significant association
+# Conducting an chiVA test indicates that there is a significant association
 # between political interest and feelings. Running a post-hoc test indicates
 # there is only a significant correlation between political interest and feelings toward Congress
 # when 1: comparing no political interest ("None") and "Moderate,"
@@ -290,7 +290,7 @@ by(myData,
 # for heterosexuals there seems to be no significant relationship: r= -.09 and p<.001.
 
 
-# try some feeling thermometers for this (but remember explanatory categorical) for anova moderation
+# try some feeling thermometers for this (but remember explanatory categorical) for chiva moderation
 by(myData,
    myData$religion.a,
    function(x) list(aov(w1_d20 ~ Polit_Int, data = x), summary(aov(w1_d20 ~ Polit_Int, data = x))))
@@ -332,8 +332,12 @@ ggplot(data=this, aes(x=Polit_Int_Num, y=sub_Rel, color=religion.a)) +
 # Project Component J - Multiple Regression 
 ##########################################################################################
 levels(myData$religion.a)
-myData$religion.a <- relevel(myData$religion.a, ref = 2) # recode level to have "None" as
+#library # recode level to have "None" as
 # default for multiple regression test (comparing None religion to the others)
+
+# check professor Yao's email
+# use relevel() function - relevel(MyData, ref="1" (or 2, etc.) ) 
+
 levels(myData$religion.a)
 
 my.lm <- lm(myData$sub_Rel ~ myData$Polit_Int_Num + myData$religion.a + 
@@ -384,3 +388,7 @@ ggplot(data=subset(myData,!is.na(religion.a)),
   stat_smooth( method="auto", se=FALSE) + facet_grid(. ~ religion.a) +
   labs(x="Political Interest", y="Church & Politics (Figure 1)", color="Religion",
        title="Figure 3: Adding Religious Identity")
+
+# add
+
+
